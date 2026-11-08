@@ -1,59 +1,42 @@
-# IPDA GRAB Bot v5 (BingX + Telegram)
+# IPDA GRAB Bot v5
 
-Bot de senales **GRAB** en perpetuos BingX con capas de edge:
+Senales GRAB en BingX con:
 
-- Liquidity Pools (Equal Highs/Lows)
-- Displacement + Fair Value Gap
-- Order Block / Breaker
-- Relative Strength vs BTC
-- Funding rate
-- Volume quality + climax + delta
-- Volatility regime filter
-- **HA-EMA (filtro suave)** - EMA sobre Heikin-Ashi, solo bonus de score
-- Position management (PAPER/LIVE): TP1 50% + BE + trailing
+- Liquidity pools, FVG, Displacement, Order Block
+- Relative Strength vs BTC + Funding
+- Volume quality + Volatility regime
+- HA-EMA (filtro suave)
+- **Journal automatico** (TP1/SL/TIMEOUT + R-multiple)
+- PAPER: partial TP + trailing
+- Filtro volumen 24h minimo
 
-## Deploy Railway
+## Railway
 
-1. Sube este repo a GitHub
-2. New Project -> Deploy from GitHub
-3. Anade volumen en `/data`
-4. Variables: pega `railway_vars.txt` y completa TELEGRAM_*
-5. Arranque: worker (Procfile)
+1. Deploy from GitHub
+2. Volumen en `/data`
+3. Pegar `railway_vars.txt` (completar TELEGRAM_*)
+4. worker via Procfile
 
 ## Local
 
 ```bash
-python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 export TELEGRAM_TOKEN=... TELEGRAM_CHAT_ID=... MODE=SIGNAL
 python bot.py
 ```
 
+## Journal
+
+Cada senal se guarda en `/data/journal.json`.
+Se resuelve con precio vivo: TP1, TP2, SL o TIMEOUT (24h).
+El heartbeat muestra winrate y avg R cuando hay datos.
+
 ## Modos
 
-| MODE   | Comportamiento                                      |
-|--------|-----------------------------------------------------|
-| SIGNAL | Solo Telegram                                       |
-| PAPER  | Senal + gestion local (partial TP + trailing)       |
-| LIVE   | Ordenes reales BingX + misma gestion                |
+| MODE   | Que hace                          |
+|--------|-----------------------------------|
+| SIGNAL | Solo Telegram + journal           |
+| PAPER  | + posiciones simuladas            |
+| LIVE   | + ordenes BingX                   |
 
-## Variables importantes
-
-```
-MODE=SIGNAL
-MIN_SCORE=85
-SHORT_MIN_SCORE=90
-NEAR_ATR_MAX=0.55
-USE_HA_EMA=true
-REQUIRE_HA_EMA_ALIGN=false   # false = filtro suave (recomendado)
-USE_FUNDING=true
-AVOID_LOW_VOL=true
-AVOID_EXTREME_VOL=true
-EXTRA_SYMBOLS=OIL-USDT,XBR-USDT,BRENT-USDT
-```
-
-## Criterio LIVE
-
-Tras >=40 senales GRAB score>=85 con esperanza TP1 > 0 en journal, valorar LIVE con RISK_PCT<=0.5.
-
-No garantiza beneficios. Cripto es de alto riesgo.
+No garantiza beneficios.

@@ -136,6 +136,7 @@ class Settings:
             state_path=os.getenv("STATE_PATH", "/data/state.json"),
             paper_path=os.getenv("PAPER_PATH", "/data/paper.json"),
             extra_symbols=os.getenv("EXTRA_SYMBOLS", "").strip(),
+            # extended via getattr in bot; keep dataclass compatible
             use_regime=_b("USE_REGIME", "true"),
             regime_ema=_i("REGIME_EMA", 50),
             crisis_atr_pct=_f("CRISIS_ATR_PCT", 3.5),
